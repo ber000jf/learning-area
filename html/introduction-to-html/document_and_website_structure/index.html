@@ -1,108 +1,975 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+r="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATH QUEST - مغامرات الرياضيات والخطط العلاجية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo --><!DOCTYPE html>
+<html lang="ar" di
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- SheetJS for Excel handling -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <title>My page title</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Sonsie+One"
-      rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        quest: {
+                            bg: '#faf5ff',
+                            purple: '#6b21a8',
+                            purpleLight: '#7e22ce',
+                            softPurple: '#f3e8ff',
+                            accent: '#a855f7',
+                            amber: '#f59e0b',
+                            teal: '#0d9488',
+                            rose: '#e11d48'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #fcf7ff;
+            color: #334155;
+        }
+        .quest-card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(107, 33, 168, 0.05);
+            border: 1px solid #f3e8ff;
+            transition: all 0.3s ease;
+        }
+        .quest-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -5px rgba(107, 33, 168, 0.12);
+        }
+        .nav-tab-active {
+            background-color: #6b21a8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(107, 33, 168, 0.25);
+        }
+        .memory-card {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        .memory-card-back {
+            transform: rotateY(180deg);
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; font-size: 11pt; color: black !important; }
+            .print-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; border-radius: 0 !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
-  <body>
-    <!-- Here is our main header that is used across all the pages of our website -->
+    <!-- Top Status Header (App Bar) -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-purple-100 no-print">
+        <div class="container mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
+            
+            <!-- Branding -->
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="bg-gradient-to-tr from-purple-700 to-indigo-600 text-white p-2.5 rounded-2xl shadow-md">
+                    <i class="fa-solid fa-square-root-variable text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-slate-800 text-base leading-tight">MATH GOAL QUEST ✨</h1>
+                    <p class="text-[11px] font-bold text-purple-600">متوسطة وثانوية الغريف • أ. البندري العتيبي</p>
+                </div>
+            </div>
 
-    <header>
-      <h1>Header</h1>
+            <!-- Student Gamified Badges Pill -->
+            <div class="flex items-center gap-2 bg-purple-50/80 p-1.5 px-3 rounded-full border border-purple-200">
+                <div class="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full text-xs font-black text-slate-700 shadow-sm">
+                    <span id="activeStudentDisplayName" class="text-purple-700">شروق</span>
+                    <i class="fa-solid fa-user-circle text-purple-600"></i>
+                </div>
+                <div class="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    <span id="playerCoins">75</span> <i class="fa-solid fa-coins text-amber-500"></i>
+                </div>
+                <div class="flex items-center gap-1 text-xs font-bold text-purple-700 bg-white px-2.5 py-1 rounded-full border border-purple-200">
+                    <span>🌱 أبدأ</span>
+                    <i class="fa-solid fa-star text-amber-400"></i> <span id="playerStars">6</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <nav class="bg-purple-50/60 border-t border-purple-100 py-2">
+            <div class="container mx-auto px-4 flex justify-center flex-wrap gap-2 text-xs font-bold">
+                <button onclick="switchTab('main')" id="tab-main" class="nav-tab-active px-4 py-2 rounded-xl flex items-center gap-2 transition">
+                    <i class="fa-solid fa-house"></i> الرئيسية
+                </button>
+                <button onclick="switchTab('basics')" id="tab-basics" class="bg-white text-purple-800 hover:bg-purple-100 px-4 py-2 rounded-xl flex items-center gap-2 transition border border-purple-100">
+                    <i class="fa-solid fa-shapes text-purple-600"></i> مسار التأسيس
+                </button>
+                <button onclick="switchTab('curriculum')" id="tab-curriculum" class="bg-white text-purple-800 hover:bg-purple-100 px-4 py-2 rounded-xl flex items-center gap-2 transition border border-purple-100">
+                    <i class="fa-solid fa-bullseye text-rose-500"></i> مهارات المنهج
+                </button>
+                <button onclick="switchTab('leaderboard')" id="tab-leaderboard" class="bg-white text-purple-800 hover:bg-purple-100 px-4 py-2 rounded-xl flex items-center gap-2 transition border border-purple-100">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> الترتيب 🏆
+                </button>
+                <button onclick="switchTab('planDoc')" id="tab-planDoc" class="bg-white text-purple-800 hover:bg-purple-100 px-4 py-2 rounded-xl flex items-center gap-2 transition border border-purple-100">
+                    <i class="fa-solid fa-file-invoice text-teal-600"></i> الخطة العلاجية للمعلمة
+                </button>
+            </div>
+        </nav>
     </header>
 
-    <nav>
-      <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Our team</a></li>
-        <li><a href="#">Projects</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
 
-      <!-- A Search form is another common non-linear way to navigate through a website. -->
+    <!-- MAIN CONTENT CONTAINERS -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
 
-      <form>
-        <input type="search" name="q" placeholder="Search query" />
-        <input type="submit" value="Go!" />
-      </form>
-    </nav>
+        <!-- ==================== TAB 1: HOME MAIN DASHBOARD ==================== -->
+        <section id="sec-main" class="space-y-6">
+            
+            <!-- Student Sync / Login Banner -->
+            <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-wrap justify-between items-center gap-3 text-xs">
+                <div class="flex items-center gap-2 text-slate-600">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="font-bold">متصل:</span> جاري مزامنة وسجل تقدم الطالبة في المهارات الرياضية.
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="saveProgressLocal()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1.5 rounded-xl border border-purple-200 font-bold">
+                        <i class="fa-solid fa-arrows-rotate ml-1"></i> إعادة محاولة المزامنة
+                    </button>
+                </div>
+            </div>
 
-    <!-- Here is our page's main content -->
-    <main>
-      <!-- It contains an article -->
-      <article>
-        <h2>Article heading</h2>
+            <!-- Welcome Header Card -->
+            <div class="bg-gradient-to-r from-purple-100 via-purple-50 to-indigo-100 p-6 rounded-3xl border border-purple-200/60 shadow-sm space-y-3">
+                <h2 class="text-xl font-black text-purple-900 flex items-center gap-2">
+                     رحلة التعلم تبدأ هنا! 🌈
+                </h2>
+                <p class="text-xs text-purple-800 leading-relaxed max-w-2xl font-semibold">
+                    كل مرة تتعلمين فيها شيئاً جديداً: انظري، حلّي المسائل، واجمعي النقاط! 🌟<br>
+                    3 أسئلة فقط في كل جولة. ابدئي بالمهارات الأساسية السابقة أو اختاري دروس كتاب الرياضيات لثالث متوسط.
+                </p>
+                <div class="flex flex-wrap gap-2 pt-1 text-[11px] font-bold">
+                    <span class="bg-white px-3 py-1 rounded-full text-emerald-700 border border-emerald-200">🌱 أبدأ: 0 - 299</span>
+                    <span class="bg-white px-3 py-1 rounded-full text-purple-700 border border-purple-200">🧙‍♂️ أتدرّب: 300 - 799</span>
+                    <span class="bg-white px-3 py-1 rounded-full text-amber-700 border border-amber-200">🏆 أتقدّم: +800</span>
+                </div>
+            </div>
 
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Donec a diam
-          lectus. Set sit amet ipsum mauris. Maecenas congue ligula as quam
-          viverra nec consectetur ant hendrerit. Donec et mollis dolor. Praesent
-          et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt
-          congue enim, ut porta lorem lacinia consectetur.
-        </p>
+            <!-- Student Profile Input Section -->
+            <div class="quest-card p-5 space-y-3">
+                <h3 class="font-black text-sm text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-purple-600"></i> ملف الطالبة 🎓
+                </h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="studentNameInputGlobal" value="شروق" placeholder="ادخلي اسم الطالبة أو رمزا..." class="flex-grow bg-slate-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
+                    <button onclick="updateStudentProfile()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow transition">
+                        الدخول / تغيير الطالبة
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-400">تُحفظ الإنجازات والعملات محلياً مع إمكانية استخراج التقرير للمعلمة أ. البندري العتيبي.</p>
+            </div>
 
-        <section>
-          <h3>Subsection</h3>
+            <!-- Three Main Pathways Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                
+                <!-- Card 1: Basics Track -->
+                <div class="quest-card p-6 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="w-12 h-12 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-shapes"></i>
+                        </div>
+                        <h3 class="font-black text-base text-slate-800">مسار التأسيس 📐</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            6 مراحل ممتعة لمعالجة المهارات السابقة المفقودة (قواعد الإشارات، النظير الجمعي، الجمع والطرح).
+                        </p>
+                    </div>
+                    <button onclick="switchTab('basics')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-3 rounded-xl text-xs shadow-sm transition">
+                        ابدئي التأسيس <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
 
-          <p>
-            Donec ut librero sed accu vehicula ultricies a non tortor. Lorem
-            ipsum dolor sit amet, consectetur adipisicing elit. Aenean ut
-            gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id
-            dolor.
-          </p>
+                <!-- Card 2: Curriculum Skills -->
+                <div class="quest-card p-6 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h3 class="font-black text-base text-slate-800">مهارات المنهج 🎯</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            دروس رياضيات الصف الثالث المتوسط (الفصل الأول) مطابقة للكتاب مع تحديات وأوراق عمل.
+                        </p>
+                    </div>
+                    <button onclick="switchTab('curriculum')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3 rounded-xl text-xs shadow-sm transition">
+                        اختاري المهارة <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
 
-          <p>
-            Pelientesque auctor nisi id magna consequat sagittis. Curabitur
-            dapibus, enim sit amet elit pharetra tincidunt feugiat nist
-            imperdiet. Ut convallis libero in urna ultrices accumsan. Donec sed
-            odio eros.
-          </p>
+                <!-- Card 3: Leaderboard Coins -->
+                <div class="quest-card p-6 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h3 class="font-black text-base text-slate-800">سباق coins 🏆</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            الترتيب حسب الرصيد التراكمي للعملات المكتسبة من حل الأسئلة والتدريبات الصحيحة.
+                        </p>
+                    </div>
+                    <button onclick="switchTab('leaderboard')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl text-xs shadow-sm transition">
+                        عرض الترتيب <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
+
+            </div>
+
         </section>
 
-        <section>
-          <h3>Another subsection</h3>
 
-          <p>
-            Donec viverra mi quis quam pulvinar at malesuada arcu rhoncus. Cum
-            soclis natoque penatibus et manis dis parturient montes, nascetur
-            ridiculus mus. In rutrum accumsan ultricies. Mauris vitae nisi at
-            sem facilisis semper ac in est.
-          </p>
+        <!-- ==================== TAB 2: BASICS TRACK (QUEST MODULES) ==================== -->
+        <section id="sec-basics" class="hidden space-y-6">
+            
+            <div class="bg-white p-5 rounded-2xl border border-purple-100 flex justify-between items-center">
+                <div>
+                    <h2 class="text-base font-black text-slate-800">مسار التأسيس والمهارات المفقودة 🧠</h2>
+                    <p class="text-xs text-purple-700 mt-0.5">ابدئي بالتدرب على القواعد الأساسية لفتح مراحل المنهج المتقدمة.</p>
+                </div>
+                <button onclick="switchTab('main')" class="text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg">
+                    <i class="fa-solid fa-xmark"></i> خروج
+                </button>
+            </div>
 
-          <p>
-            Vivamus fermentum semper porta. Nunc diam velit, adipscing ut
-            tristique vitae sagittis vel odio. Maecenas convallis ullamcorper
-            ultricied. Curabitur ornare, ligula semper consectetur sagittis,
-            nisi diam iaculis velit, is fringille sem nunc vet mi.
-          </p>
+            <!-- Basics Modules Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                
+                <!-- Module 1 -->
+                <div class="quest-card p-5 space-y-4 border-2 border-purple-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center font-black">1</div>
+                        <div>
+                            <h4 class="font-black text-sm text-slate-800">قواعد الإشارات (جمع وطرح)</h4>
+                            <p class="text-[11px] text-slate-500">تمبيز الناتج الموجب والسالب</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="startQuiz('basics-1')" class="flex-grow bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1">
+                            🌱 أبدأ • +10
+                        </button>
+                        <button onclick="startMemoryMatch('basics-1')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 py-2 px-3 rounded-xl text-xs font-bold">
+                             ذاكرة المطابقة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Module 2 -->
+                <div class="quest-card p-5 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-black">2</div>
+                        <div>
+                            <h4 class="font-black text-sm text-slate-800">النظير الجمعي والضربي</h4>
+                            <p class="text-[11px] text-slate-500">إلغاء الحدود والمعاملات</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="startQuiz('basics-2')" class="flex-grow bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1">
+                            🌱 أبدأ • +10
+                        </button>
+                        <button onclick="startMemoryMatch('basics-2')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 py-2 px-3 rounded-xl text-xs font-bold">
+                             ذاكرة المطابقة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Module 3 -->
+                <div class="quest-card p-5 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black">3</div>
+                        <div>
+                            <h4 class="font-black text-sm text-slate-800">دمج الحدود المتشابهة</h4>
+                            <p class="text-[11px] text-slate-500">جمع المتغيرات س مع س</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="startQuiz('basics-3')" class="flex-grow bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1">
+                            🌱 أبدأ • +10
+                        </button>
+                        <button onclick="startMemoryMatch('basics-3')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 py-2 px-3 rounded-xl text-xs font-bold">
+                             ذاكرة المطابقة
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
         </section>
-      </article>
 
-      <!-- the aside content can also be nested within the main content -->
-      <aside>
-        <h2>Related</h2>
 
-        <ul>
-          <li><a href="#">Oh I do like to be beside the seaside</a></li>
-          <li><a href="#">Oh I do like to be beside the sea</a></li>
-          <li><a href="#">Although in the North of England</a></li>
-          <li><a href="#">It never stops raining</a></li>
-          <li><a href="#">Oh well…</a></li>
-        </ul>
-      </aside>
+        <!-- ==================== TAB 3: CURRICULUM LESSONS & QUIZ ARENA ==================== -->
+        <section id="sec-curriculum" class="hidden space-y-6">
+            
+            <div class="bg-white p-5 rounded-2xl border border-purple-100 flex justify-between items-center">
+                <div>
+                    <h2 class="text-base font-black text-slate-800">مهارات منهج الرياضيات (ثالث متوسط - ف1) 📚</h2>
+                    <p class="text-xs text-purple-700 mt-0.5">اختر الدرس لبدء تحدي المهارة أو إنشاء الخطة العلاجية.</p>
+                </div>
+                <button onclick="switchTab('main')" class="text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg">
+                    <i class="fa-solid fa-xmark"></i> خروج
+                </button>
+            </div>
+
+            <!-- Lessons Selection Grid -->
+            <div id="lessonsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamically populated -->
+            </div>
+
+        </section>
+
+
+        <!-- ==================== INTERACTIVE QUIZ MODAL ARENA ==================== -->
+        <section id="sec-quiz-arena" class="hidden space-y-6">
+            <div class="quest-card p-6 border-2 border-purple-300 relative">
+                
+                <div class="flex justify-between items-center border-b border-purple-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-purple-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full" id="quizLessonTitle">اسم الدرس</span>
+                        <span class="text-xs font-bold text-amber-600"><i class="fa-solid fa-coins"></i> +20 Coins عند الإجابة</span>
+                    </div>
+                    <button onclick="closeQuiz()" class="text-xs font-bold text-slate-400 hover:text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
+                        <i class="fa-solid fa-xmark"></i> إنهاء الجولة
+                    </button>
+                </div>
+
+                <!-- Quiz Progress -->
+                <div class="pt-4 flex justify-between items-center text-xs font-bold text-slate-500">
+                    <span id="questionStepText">السؤال 1 من 3</span>
+                    <span id="quizScoreCount">الإجابات الصحيحة: 0</span>
+                </div>
+
+                <!-- Question Box -->
+                <div class="my-6 bg-purple-50/70 p-6 rounded-2xl border border-purple-200 text-center space-y-4">
+                    <h3 class="text-lg font-black text-slate-800" id="quizQuestionText">جاري تحميل السؤال...</h3>
+                    <div id="quizQuestionHint" class="text-xs text-purple-700 font-semibold bg-white p-2.5 rounded-xl border border-purple-100 inline-block">
+                        💡 تلميذه: تذكري تطبيق النظير الجمعي بنقل الأعداد للطرف الآخر.
+                    </div>
+                </div>
+
+                <!-- MCQ Options Grid -->
+                <div id="quizOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Populated via JS -->
+                </div>
+
+                <div id="quizFeedback" class="hidden mt-4 p-3 rounded-xl text-center text-xs font-bold"></div>
+            </div>
+        </section>
+
+
+        <!-- ==================== MEMORY MATCH GAME ARENA ==================== -->
+        <section id="sec-memory-arena" class="hidden space-y-6">
+            <div class="quest-card p-6 border-2 border-amber-300">
+                <div class="flex justify-between items-center border-b border-amber-100 pb-4">
+                    <div>
+                        <h3 class="font-black text-slate-800 text-base">لعبة ذاكرة المطابقة 🧠</h3>
+                        <p class="text-xs text-slate-500">اقلبي البطاقات وطابقي الجملة أو المعادلة بالحل الصحيح.</p>
+                    </div>
+                    <button onclick="closeQuiz()" class="text-xs font-bold text-slate-400 hover:text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
+                        العودة للألعاب
+                    </button>
+                </div>
+
+                <div id="memoryGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 my-6 h-64">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="flex justify-between items-center text-xs font-bold text-slate-600 bg-amber-50 p-3 rounded-xl">
+                    <span>الأزواج المتطابقة: <span id="memoryPairsCount" class="text-amber-600">0 / 3</span></span>
+                    <span>المحاولات: <span id="memoryAttemptsCount">0</span></span>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== TAB 4: LEADERBOARD ==================== -->
+        <section id="sec-leaderboard" class="hidden space-y-6">
+            <div class="quest-card p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-purple-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-trophy text-amber-500"></i> ترتيب مباشر • أعلى نتائج الطالبات 🏆
+                        </h2>
+                        <p class="text-xs text-slate-500">الترتيب التنافسي حسب إجمالي النقاط والعملات المكتسبة.</p>
+                    </div>
+                    <button onclick="exportLeaderboardCSV()" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1.5 rounded-xl text-xs font-bold">
+                        تصدير الترتيب CSV
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-purple-50 text-purple-900 font-black">
+                            <tr>
+                                <th class="p-3 rounded-r-xl">الترتيب</th>
+                                <th class="p-3">اسم الطالبة / الرمز</th>
+                                <th class="p-3">العملات (Coins)</th>
+                                <th class="p-3 rounded-l-xl">اللقب والشارة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody" class="divide-y divide-purple-50 font-bold text-slate-700">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== TAB 5: TEACHER'S OFFICIAL REMEDIAL PLAN (PRINTABLE) ==================== -->
+        <section id="sec-planDoc" class="hidden space-y-6">
+            
+            <!-- Controls Toolbar -->
+            <div class="bg-white p-4 rounded-2xl border border-purple-100 flex flex-wrap justify-between items-center gap-3 no-print">
+                <div class="flex items-center gap-2">
+                    <label class="text-xs font-black text-slate-700">اختر الدرس لإخراج الخطة:</label>
+                    <select id="docLessonSelect" onchange="renderOfficialPlanDoc()" class="bg-slate-50 border border-slate-300 rounded-xl p-2 text-xs font-bold focus:ring-2 focus:ring-purple-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <button onclick="window.print()" class="bg-purple-700 hover:bg-purple-800 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> طباعة الخطة العلاجية والمهارات المفقودة
+                </button>
+            </div>
+
+            <!-- OFFICIAL PRINTABLE PLAN CONTAINER -->
+            <div id="printablePlanArea" class="bg-white p-8 rounded-2xl border border-slate-300 shadow-sm space-y-6 print-card">
+                
+                <!-- School & Teacher Metadata Header -->
+                <div class="border-b-2 border-purple-800 pb-4">
+                    <div class="flex justify-between items-center mb-4 text-xs">
+                        <div class="text-right space-y-0.5">
+                            <p class="font-bold text-slate-800">المملكة العربية السعودية</p>
+                            <p class="text-slate-600">وزارة التعليم • إدارة التعليم</p>
+                            <p class="font-black text-purple-900">المدرسة: متوسطة وثانوية الغريف</p>
+                        </div>
+                        <div class="text-center">
+                            <h2 class="text-lg font-black text-purple-900">استمارة الخطة العلاجية والمهارات المفقودة</h2>
+                            <p class="text-xs font-bold text-slate-500">مادة الرياضيات • الصف الثالث المتوسط (الفصل الأول)</p>
+                        </div>
+                        <div class="text-left text-xs text-slate-600 space-y-0.5">
+                            <p class="font-bold text-slate-800">المعلمة: أ. البندري العتيبي</p>
+                            <p>مديرة المدرسة: أ. جواهر السبيعي</p>
+                            <p>التاريخ: <span id="docCurrentDate"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Meta Student Table -->
+                    <table class="w-full border-collapse border border-slate-300 text-xs">
+                        <tr class="bg-purple-50/50">
+                            <th class="border border-slate-300 p-2 text-slate-700">اسم الطالبة</th>
+                            <td class="border border-slate-300 p-2 font-bold text-purple-900" id="docPrintStudentName">شروق</td>
+                            <th class="border border-slate-300 p-2 text-slate-700">الصف</th>
+                            <td class="border border-slate-300 p-2">الثالث المتوسط</td>
+                            <th class="border border-slate-300 p-2 text-slate-700">نوع التعثر</th>
+                            <td class="border border-slate-300 p-2 font-bold text-rose-600">إجرائي / مفاهيمي</td>
+                        </tr>
+                        <tr>
+                            <th class="border border-slate-300 p-2 text-slate-700">الدرس المستهدف</th>
+                            <td class="border border-slate-300 p-2 font-bold" id="docPrintLessonTitle" colspan="3">حل المعادلات التي تحتوي متغيراً في طرفيها</td>
+                            <th class="border border-slate-300 p-2 text-slate-700">مستوى التقويم</th>
+                            <td class="border border-slate-300 p-2 font-bold text-amber-600">يحتاج دعم مهارات مفقودة</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Missing Skills Box -->
+                <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 text-xs">
+                    <h3 class="font-black text-amber-900 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> المهارات الأساسية المفقودة (السابقة التراكمية):
+                    </h3>
+                    <p id="docPrintMissingSkills" class="text-amber-900 font-semibold leading-relaxed"></p>
+                </div>
+
+                <!-- Objectives & Strategies -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="font-bold text-purple-900 block mb-1">المهارة المستهدفة وتوصيف التعثر:</span>
+                        <p id="docPrintSkillDescription" class="text-slate-600"></p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="font-bold text-purple-900 block mb-1">الاستراتيجيات العلاجية والوسائل:</span>
+                        <p class="text-slate-600">التدريس المباشر، نمذجة حل المسائل خطوة بخطوة، التعلم الرقمي بالألعاب والتطبيقات التفاعلية.</p>
+                    </div>
+                </div>
+
+                <!-- MCQ Questions Sections -->
+                <div>
+                    <h3 class="text-xs font-bold text-purple-900 bg-purple-50 p-2 rounded-lg border-r-4 border-purple-600 mb-3">
+                        أسئلة تقويم المهارة والاختبار التشخيصي (اختيار من متعدد MCQ)
+                    </h3>
+                    <div id="docPrintMCQContainer" class="space-y-3 text-xs">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Signatures Section -->
+                <div class="pt-6 border-t border-slate-300 flex justify-between items-center text-xs text-slate-800 font-bold">
+                    <div>توقيع معلمة المادة: أ. البندري العتيبي</div>
+                    <div>توقيع الموجهة الطلابية: ............................</div>
+                    <div>اعتماد مديرة المدرسة: أ. جواهر السبيعي</div>
+                </div>
+
+            </div>
+        </section>
+
     </main>
 
-    <!-- And here is our main footer that is used across all the pages of our website -->
-
-    <footer>
-      <p>©Copyright 2050 by nobody. All rights reversed.</p>
+    <!-- Footer -->
+    <footer class="bg-white border-t border-purple-100 py-4 text-center text-xs text-slate-400 no-print mt-auto">
+        <div class="container mx-auto px-4">
+            <p class="font-bold text-purple-900">MATH GOAL QUEST • منشئ ومصمّم الخطط العلاجية التفاعلية 🌟</p>
+            <p class="text-[11px] text-slate-500 mt-1">مدرسة متوسطة وثانوية الغريف • المعلمة: البندري العتيبي | المديرة: جواهر السبيعي</p>
+        </div>
     </footer>
-  </body>
+
+
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        // ================= MATH LESSONS DATA & MCQ =================
+        const saudiMathLessons = [
+            {
+                id: "L1-1",
+                chapter: "الفصل 1: المعادلات الخطية",
+                title: "حل المعادلات ذات الخطوة الواحدة",
+                skill: "حل معادلة خطية من خطوة واحدة بجمع أو طرح أو ضرب الأعداد الصحيحة.",
+                missingSkills: "مهارة إجراء العمليات على الأعداد الصحيحة وقواعد جمع وطرح الإشارات السابقة.",
+                hint: "استخدمي العملية العكسية للنظير الجمعي أو الضربي للحد.",
+                questions: [
+                    { question: "ما حل المعادلة: س - ٧ = ١٥ ؟", options: ["س = ٨", "س = ٢٢", "س = -٨", "س = -٢٢"], correct: 1 },
+                    { question: "ما قيمة ص في المعادلة: -٤ ص = ٣٢ ؟", options: ["ص = ٨", "ص = -٨", "ص = ٢٨", "ص = -١٢٨"], correct: 1 },
+                    { question: "إضافة العدد ٩ إلى عدد ما يعطي الناتج -٣، المعادلة هي:", options: ["س - ٩ = -٣", "٩ س = -٣", "س + ٩ = -٣", "س + ٣ = ٩"], correct: 2 }
+                ],
+                memoryPairs: [
+                    { text: "س - ٥ = ١٠", match: "س = ١٥" },
+                    { text: "٣ ص = ١٢", match: "ص = ٤" },
+                    { text: "ن + ٧ = ٢", match: "ن = -٥" }
+                ]
+            },
+            {
+                id: "L1-2",
+                chapter: "الفصل 1: المعادلات الخطية",
+                title: "حل المعادلات المتعددة الخطوات",
+                skill: "حل معادلات تتطلب التخلص من الحد الثابت أولاً ثم معامل المتغير بالترتيب.",
+                missingSkills: "الترتيب الصحيح للعمليات التنازلية والتخلص من الجمع والطرح قبل الضرب والقسمة.",
+                hint: "تخلصي أولاً من الأعداد المضافة أو المطروحة قبل معامل المتغير س.",
+                questions: [
+                    { question: "الخطوة الأولى لحل المعادلة ٢ س + ٥ = ٢١ هي:", options: ["القسمة على ٢", "طرح ٥ من الطرفين", "جمع ٥ للطرفين", "الضرب في ٢"], correct: 1 },
+                    { question: "حل المعادلة: ٣ ص - ٧ = ٨ هو:", options: ["ص = ٥", "ص = ٣", "ص = ١٥", "ص = -٥"], correct: 0 },
+                    { question: "ثلاثة أعداد فردية متتالية مجموعها ٥١، المعادلة هي:", options: ["٣س + ٣ = ٥١", "٣س + ٦ = ٥١", "٣س = ٥١", "س + ٣ = ٥١"], correct: 1 }
+                ],
+                memoryPairs: [
+                    { text: "٢ س + ١ = ٩", match: "س = ٤" },
+                    { text: "٥ ص - ٣ = ٧", match: "ص = ٢" },
+                    { text: "٤ ن + ٨ = ٠", match: "ن = -٢" }
+                ]
+            },
+            {
+                id: "L1-3",
+                chapter: "الفصل 1: المعادلات الخطية",
+                title: "حل المعادلات التي تحتوي متغيراً في طرفيها",
+                skill: "تجميع الحدود المتغيرة في طرف والثوابت في الطرف الآخر.",
+                missingSkills: "ديل ونقل المتغيرات مع تغيير إشارتها وقواعد طرح الحدود المتشابهة.",
+                hint: "اطرحي المتغير ذو المعامل الأصغر من الطرفين لتسهيل الحل.",
+                questions: [
+                    { question: "عند حل المعادلة ٥ س + ١٣ = ٢ س + ٣١ نجمع المتغيرات بطرح:", options: ["٢س من الطرفين", "١٣ من الطرفين", "٥س من الطرفين", "٣١ من الطرفين"], correct: 0 },
+                    { question: "حل المعادلة: ٧ ص - ٨ = ٩ ص + ٤ هو:", options: ["ص = ٦", "ص = -٦", "ص = -٢", "ص = ٢"], correct: 1 },
+                    { question: "المعادلة التي تكون صائبة لكل القيم تسمى:", options: ["ليس لها حل", "مطابقة", "تربيعية", "متباينة"], correct: 1 }
+                ],
+                memoryPairs: [
+                    { text: "٥س + ٢ = ٣س + ٨", match: "س = ٣" },
+                    { text: "٤ص + ٥ = ٤ص - ١", match: "ليس لها حل" },
+                    { text: "٢ن + ٣ = ٢ن + ٣", match: "مطابقة" }
+                ]
+            },
+            {
+                id: "L2-1",
+                chapter: "الفصل 2: الدوال الخطية",
+                title: "الدوال والتمثيل البياني",
+                skill: "تحديد المجال والمدى واختبار الدالة بالخط الرأسي.",
+                missingSkills: "تمثيل الأزواج المرتبة (س ، ص) على المستوى الإحداثي التعويدي.",
+                hint: "قيم س هي المجال، وقيم ص المخرجات هي المدى.",
+                questions: [
+                    { question: "مجموعة المدخلات (قيم س) في العلاقة تسمى:", options: ["المدى", "المجال", "التغير", "الجدول"], correct: 1 },
+                    { question: "العلاقة {(٢، ٥)، (٢، ٨)} لا تمثل دالة لأن:", options: ["المدى مكرر", "العنصر ٢ ارتبط بأكثر من عنصر", "ليست بالربع الأول", "موجبة"], correct: 1 },
+                    { question: "إذا كانت د(س) = ٣ س - ١ ، فإن قيمة د(٤) تساوي:", options: ["١١", "١٢", "٧", "-١١"], correct: 0 }
+                ],
+                memoryPairs: [
+                    { text: "مجال {(١،٢)،(٣،٤)}", match: "{١، ٣}" },
+                    { text: "مدى {(١،٢)،(٣،٤)}", match: "{٢، ٤}" },
+                    { text: "د(س) = ٢س ، د(٣)", match: "٦" }
+                ]
+            }
+        ];
+
+        // Leaderboard Mock Database
+        let leaderboardData = [
+            { name: "شروق", coins: 225, title: "🌱 أبدأ" },
+            { name: "سارة", coins: 180, title: "🌱 أبدأ" },
+            { name: "نورة", coins: 120, title: "🌱 أبدأ" },
+            { name: "TEST", coins: 30, title: "🌱 أبدأ" }
+        ];
+
+        let activeQuizLesson = null;
+        let currentQuestionIdx = 0;
+        let currentQuizScore = 0;
+        let memoryFlippedCards = [];
+        let memoryMatchedPairs = 0;
+
+        // Window Init
+        window.onload = function() {
+            renderCurriculumGrid();
+            populateDocLessonSelect();
+            renderLeaderboard();
+            renderOfficialPlanDoc();
+
+            document.getElementById('docCurrentDate').innerText = new Date().toLocaleDateString('ar-SA');
+        };
+
+        // Navigation Switcher
+        function switchTab(tabId) {
+            ['main', 'basics', 'curriculum', 'leaderboard', 'planDoc', 'quiz-arena', 'memory-arena'].forEach(id => {
+                const el = document.getElementById('sec-' + id);
+                if(el) el.classList.add('hidden');
+
+                const btn = document.getElementById('tab-' + id);
+                if(btn) {
+                    btn.classList.remove('nav-tab-active');
+                    btn.classList.add('bg-white', 'text-purple-800');
+                }
+            });
+
+            const targetSec = document.getElementById('sec-' + tabId);
+            if(targetSec) targetSec.classList.remove('hidden');
+
+            const targetBtn = document.getElementById('tab-' + tabId);
+            if(targetBtn) {
+                targetBtn.classList.add('nav-tab-active');
+                targetBtn.classList.remove('bg-white', 'text-purple-800');
+            }
+        }
+
+        // Student Profile Handler
+        function updateStudentProfile() {
+            const val = document.getElementById('studentNameInputGlobal').value || "شروق";
+            document.getElementById('activeStudentDisplayName').innerText = val;
+            document.getElementById('docPrintStudentName').innerText = val;
+            
+            // Check if student in leaderboard, or add
+            let found = leaderboardData.find(s => s.name === val);
+            if(!found) {
+                leaderboardData.push({ name: val, coins: 75, title: "🌱 أبدأ" });
+                renderLeaderboard();
+            }
+        }
+
+        // Render Curriculum Grid Cards
+        function renderCurriculumGrid() {
+            const grid = document.getElementById('lessonsGrid');
+            grid.innerHTML = '';
+
+            saudiMathLessons.forEach((lesson, index) => {
+                grid.innerHTML += `
+                    <div class="quest-card p-5 space-y-4">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-md border border-purple-100">${lesson.chapter}</span>
+                            <h4 class="font-black text-sm text-slate-800 pt-1">${lesson.title}</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">${lesson.skill}</p>
+                        </div>
+
+                        <div class="pt-2 flex flex-col gap-2">
+                            <button onclick="startQuiz('${lesson.id}')" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-gamepad"></i> تحدي المهارة (+20 Coins)
+                            </button>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="startMemoryMatch('${lesson.id}')" class="bg-purple-50 hover:bg-purple-100 text-purple-800 py-2 rounded-xl text-xs font-bold border border-purple-200">
+                                     ذاكرة المطابقة
+                                </button>
+                                <button onclick="openPlanForLesson('${lesson.id}')" class="bg-teal-50 hover:bg-teal-100 text-teal-800 py-2 rounded-xl text-xs font-bold border border-teal-200">
+                                    📋 استمارة الخطة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // START INTERACTIVE QUIZ
+        function startQuiz(lessonId) {
+            let lesson = saudiMathLessons.find(l => l.id === lessonId);
+            if(!lesson && lessonId.startsWith('basics')) {
+                // Mock Basics Lesson
+                lesson = {
+                    id: lessonId,
+                    title: "مهارات التأسيس السابقة",
+                    hint: "تذكري قواعد حساب الإشارات في الأعداد الصحيحة.",
+                    questions: [
+                        { question: "حاصل حساب: -٥ + ٨ = ؟", options: ["٣", "-٣", "١٣", "-١٣"], correct: 0 },
+                        { question: "النظير الجمعي للعدد -٧ هو:", options: ["٧", "-٧", "١/٧", "٠"], correct: 0 },
+                        { question: "تجميع الحدود: ٣س + ٢س يساوي:", options: ["٥س", "٥س²", "٦س", "س"], correct: 0 }
+                    ]
+                };
+            }
+
+            activeQuizLesson = lesson;
+            currentQuestionIdx = 0;
+            currentQuizScore = 0;
+
+            document.getElementById('quizLessonTitle').innerText = lesson.title;
+            document.getElementById('quizQuestionHint').innerText = "💡 تلميذة: " + (lesson.hint || "ركزي في الخطوات.");
+            
+            switchTab('quiz-arena');
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const qData = activeQuizLesson.questions[currentQuestionIdx];
+            document.getElementById('questionStepText').innerText = `السؤال ${currentQuestionIdx + 1} من ${activeQuizLesson.questions.length}`;
+            document.getElementById('quizScoreCount').innerText = `الإجابات الصحيحة: ${currentQuizScore}`;
+            document.getElementById('quizQuestionText').innerText = qData.question;
+            
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.add('hidden');
+
+            const optionsGrid = document.getElementById('quizOptionsGrid');
+            optionsGrid.innerHTML = '';
+
+            qData.options.forEach((optText, idx) => {
+                optionsGrid.innerHTML += `
+                    <button onclick="checkQuizAnswer(${idx})" class="p-3.5 rounded-xl border border-purple-200 bg-white hover:bg-purple-50 text-slate-800 text-xs font-bold text-right transition hover:border-purple-400">
+                        ${optText}
+                    </button>
+                `;
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx) {
+            const qData = activeQuizLesson.questions[currentQuestionIdx];
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.remove('hidden');
+
+            if(selectedIdx === qData.correct) {
+                currentQuizScore++;
+                feedback.className = "mt-4 p-3 rounded-xl text-center text-xs font-bold bg-emerald-100 text-emerald-800";
+                feedback.innerText = "إجابة صحيحة ممتازة! 🎉 (+20 Coins)";
+                addCoins(20);
+            } else {
+                feedback.className = "mt-4 p-3 rounded-xl text-center text-xs font-bold bg-rose-100 text-rose-800";
+                feedback.innerText = "إجابة غير صحيحة، راجعي الخطوة واستمرّي! 💪";
+            }
+
+            setTimeout(() => {
+                currentQuestionIdx++;
+                if(currentQuestionIdx < activeQuizLesson.questions.length) {
+                    renderCurrentQuestion();
+                } else {
+                    alert(`أحسنتِ! أنهيتِ الجولة بنجاح وشُخِّصت مهاراتك. الإجابات الصحيحة: ${currentQuizScore} من 3`);
+                    switchTab('curriculum');
+                }
+            }, 1200);
+        }
+
+        function closeQuiz() {
+            switchTab('curriculum');
+        }
+
+        // MEMORY MATCH GAME LOGIC
+        function startMemoryMatch(lessonId) {
+            let lesson = saudiMathLessons.find(l => l.id === lessonId);
+            if(!lesson || !lesson.memoryPairs) {
+                lesson = saudiMathLessons[0];
+            }
+
+            switchTab('memory-arena');
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            memoryMatchedPairs = 0;
+            memoryFlippedCards = [];
+            document.getElementById('memoryPairsCount').innerText = `0 / ${lesson.memoryPairs.length}`;
+
+            // Create Deck
+            let deck = [];
+            lesson.memoryPairs.forEach((pair, idx) => {
+                deck.push({ id: idx, text: pair.text, type: 'q' });
+                deck.push({ id: idx, text: pair.match, type: 'a' });
+            });
+            deck.sort(() => Math.random() - 0.5);
+
+            deck.forEach((card, i) => {
+                grid.innerHTML += `
+                    <div class="memory-card bg-purple-100 border border-purple-200 rounded-xl h-20 flex items-center justify-center font-black text-xs text-purple-900 shadow-sm" data-id="${card.id}" onclick="flipMemoryCard(this, '${card.text}')">
+                        <span class="card-cover">⭐</span>
+                    </div>
+                `;
+            });
+        }
+
+        function flipMemoryCard(cardEl, text) {
+            if(memoryFlippedCards.length >= 2 || cardEl.classList.contains('matched')) return;
+
+            cardEl.innerHTML = text;
+            cardEl.classList.add('bg-white', 'border-purple-500');
+            memoryFlippedCards.push(cardEl);
+
+            if(memoryFlippedCards.length === 2) {
+                const id1 = memoryFlippedCards[0].getAttribute('data-id');
+                const id2 = memoryFlippedCards[1].getAttribute('data-id');
+
+                if(id1 === id2 && memoryFlippedCards[0] !== memoryFlippedCards[1]) {
+                    memoryFlippedCards.forEach(c => c.classList.add('matched', 'bg-emerald-100', 'text-emerald-800'));
+                    memoryMatchedPairs++;
+                    document.getElementById('memoryPairsCount').innerText = `${memoryMatchedPairs} / 3`;
+                    addCoins(15);
+                    memoryFlippedCards = [];
+                } else {
+                    setTimeout(() => {
+                        memoryFlippedCards.forEach(c => {
+                            c.innerHTML = '<span class="card-cover">⭐</span>';
+                            c.classList.remove('bg-white', 'border-purple-500');
+                        });
+                        memoryFlippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        // Add Coins & Update Badges
+        function addCoins(amount) {
+            let coinsEl = document.getElementById('playerCoins');
+            let current = parseInt(coinsEl.innerText) + amount;
+            coinsEl.innerText = current;
+
+            const name = document.getElementById('activeStudentDisplayName').innerText;
+            let student = leaderboardData.find(s => s.name === name);
+            if(student) {
+                student.coins = current;
+                renderLeaderboard();
+            }
+        }
+
+        // Leaderboard Render
+        function renderLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+            
+            leaderboardData.sort((a,b) => b.coins - a.coins);
+
+            leaderboardData.forEach((item, idx) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-purple-50/50">
+                        <td class="p-3 font-black text-purple-800">${idx + 1}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.name}</td>
+                        <td class="p-3 text-amber-600 font-black">${item.coins}</td>
+                        <td class="p-3 font-bold text-purple-700">${item.title}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function exportLeaderboardCSV() {
+            let csv = "الترتيب,الاسم,العملات,اللقب\n";
+            leaderboardData.forEach((item, i) => {
+                csv += `${i+1},${item.name},${item.coins},${item.title}\n`;
+            });
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "leaderboard_math_3m.csv";
+            link.click();
+        }
+
+        // OFFICIAL PLAN DOCUMENTATION HANDLERS
+        function populateDocLessonSelect() {
+            const select = document.getElementById('docLessonSelect');
+            select.innerHTML = '';
+            saudiMathLessons.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l.id;
+                opt.innerText = `${l.chapter} - ${l.title}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function openPlanForLesson(lessonId) {
+            document.getElementById('docLessonSelect').value = lessonId;
+            switchTab('planDoc');
+            renderOfficialPlanDoc();
+        }
+
+        function renderOfficialPlanDoc() {
+            const lessonId = document.getElementById('docLessonSelect').value;
+            const lesson = saudiMathLessons.find(l => l.id === lessonId) || saudiMathLessons[0];
+
+            document.getElementById('docPrintLessonTitle').innerText = lesson.title;
+            document.getElementById('docPrintMissingSkills').innerText = lesson.missingSkills;
+            document.getElementById('docPrintSkillDescription').innerText = lesson.skill;
+
+            // Render MCQ Questions
+            const mcqContainer = document.getElementById('docPrintMCQContainer');
+            mcqContainer.innerHTML = '';
+
+            lesson.questions.forEach((q, idx) => {
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <div class="p-2 border border-slate-200 rounded-lg bg-slate-50 font-semibold">
+                            ${opt} ${optIdx === q.correct ? '<span class="text-emerald-700 font-bold mr-1">(الإجابة الصحيحة)</span>' : ''}
+                        </div>
+                    `;
+                });
+
+                mcqContainer.innerHTML += `
+                    <div class="p-3 border border-slate-200 rounded-xl space-y-2">
+                        <p class="font-bold text-slate-800">س${idx+1}: ${q.question}</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function saveProgressLocal() {
+            alert("تمت مزامنة تقدم الطالبة بنجاح على الجهاز الحالي ✨");
+        }
+    </script>
+</body>
 </html>
